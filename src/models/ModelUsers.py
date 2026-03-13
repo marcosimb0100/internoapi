@@ -4,13 +4,16 @@ from typing import Optional
 from datetime import datetime
 
 
-class UsuariosModel(BaseModel):
+class UsuarioModel(BaseModel):
 
     correo_electronico: str
     nombre_completo: str
     clave: str
     foto_perfil: Optional[str] = None
 
+    idUsuarioCreo: Optional[int] = None
+    idUsuarioModifico: Optional[int] = None
+    
     activo: bool = True
 
     fecha_creacion: datetime = Field(default_factory=datetime.utcnow)
