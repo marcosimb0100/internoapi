@@ -6,11 +6,12 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 # from helpers.socketHelper import register_socket_handlers
 
 # Routes
-# from routers import ( 
+from routers import ( 
+                        RouterUsers
                         # usuariosRoute, usuariosAppRoute, biometricosRoute, perfilesRoute, contpaqRoute, horariosRoute, 
                         # supervisorRoute, gerenteRoute, correoRoute, empleadosSinVinculosRoute, permisosRoute, horariosPersonalExternoRoute,
                         # logsRoute, empleadosBiometricoRoute, fechaAltaRoute, diasInhabilesRoute
-                    # )
+                    )
 
 app = Flask(__name__)
 CORS(app)
@@ -33,6 +34,11 @@ def page_not_found(error):
     return "<h1>Not Found Page</h1>", 404
 
 if __name__ == '__main__':
+    
+    # -------------------
+    # Blueprint
+    # -------------------
+    app.register_blueprint(RouterUsers.main, url_prefix = '/api/usuarios')
     
     app.register_error_handler(404, page_not_found)
     
