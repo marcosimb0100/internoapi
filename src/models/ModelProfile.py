@@ -4,12 +4,17 @@ from typing import Optional
 from datetime import datetime
 
 
-class UsuarioModel(BaseModel):
+class PerfiloModel(BaseModel):
 
-    correo_electronico: str
-    nombre_completo: str
-    clave: str
-    foto_perfil: Optional[str] = None
+    nombre_perfil: str
+    
+    menus_seleccionados: str
+    menu_web: str
+    
+    lista_url: str
+    
+    empresas_seleccionados: str
+    clientes_seleccionados: str
 
     id_usuario_creo: Optional[int] = None
     id_usuario_modifico: Optional[int] = None

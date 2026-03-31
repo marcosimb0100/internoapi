@@ -4,16 +4,20 @@ from typing import Optional
 from datetime import datetime
 
 
-class UsuarioModel(BaseModel):
+class MenuWebModel(BaseModel):
 
-    correo_electronico: str
-    nombre_completo: str
-    clave: str
-    foto_perfil: Optional[str] = None
+    menu_hijo: str
+    menu_padre: Optional[str] = None
 
-    id_usuario_creo: Optional[int] = None
-    id_usuario_modifico: Optional[int] = None
-    
+    tipo_menu: str
+
+    orden_n1: int
+    orden_n2: int
+
+    etiqueta: str
+    icono: Optional[str] = None
+    url: Optional[str] = None
+
     activo: bool = True
 
     fecha_creacion: datetime = Field(default_factory=datetime.utcnow)

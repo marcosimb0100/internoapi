@@ -6,3 +6,7 @@ notes.md
 **/__pycache__/
 *.pyc
 *.egg
+
+# Entornos virtuales
+env/
+.env/

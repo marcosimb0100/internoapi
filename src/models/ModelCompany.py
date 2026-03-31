@@ -7,10 +7,10 @@ from datetime import datetime
 
 class EmpresasRPModel(BaseModel):
 
-    razonSocial: Optional[str] = None
+    razon_social: Optional[str] = None
     rfc: Optional[str] = None
     siglas: Optional[str] = None
-    nombreCorto: Optional[str] = None
+    nombre_corto: Optional[str] = None
     calle: Optional[str] = None
     numExt: Optional[str] = None
     numInt: Optional[str] = None
@@ -19,13 +19,13 @@ class EmpresasRPModel(BaseModel):
     municipio: Optional[str] = None
     estado: Optional[str] = None
     pais: Optional[str] = None
-    codigoPostal: Optional[str] = None
+    codigo_postal: Optional[str] = None
     telefono1: Optional[str] = None
     telefono2: Optional[str] = None
-    representanteLegal: Optional[str] = None
+    representante_legal: Optional[str] = None
     
-    idUsuarioCreo: Optional[int] = None
-    idUsuarioModifico: Optional[int] = None
+    id_usuario_creo: Optional[int] = None
+    id_usuario_modifico: Optional[int] = None
     
     activo: bool = True
 

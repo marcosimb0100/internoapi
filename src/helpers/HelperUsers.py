@@ -1,8 +1,9 @@
 from dataBase.mongo import cnn_mongo
 from models.ModelUsers import UsuarioModel
-# from helpers.archivosHelper import archivoRuta
-# from helpers.seguridadHelper import Seguridad
+from helpers.HelperSecurity import Seguridad
+from helpers.HelperFile import archivoRuta
 from datetime import datetime
+from bson import ObjectId
 import bcrypt
 import shortuuid
 
@@ -15,7 +16,6 @@ class UsuarioHelper():
         try:
             
             fecha_actual                        = datetime.now()
-            UUID                                = shortuuid.ShortUUID().random(length=10)
             sal                                 = bcrypt.gensalt()
             clave                               = datos['clave']
             clave_hashed                        = bcrypt.hashpw(clave.encode('utf-8'), sal)
@@ -25,9 +25,8 @@ class UsuarioHelper():
             if db["usuarios"].find_one({"correo_electronico": datos['correo_electronico'].lower()}):
                 return { 'status': 400, "data": { 'mensaje': 'El correo electrónico ya existe.', 'datos': {} } }
             
-
             usuario = UsuarioModel(
-                id_usuario              = UUID,
+
                 correo_electronico      = datos['correo_electronico'].lower(),
                 nombre_completo         = datos['nombre_completo'].upper(),
                 clave                   = clave_hashed_str,
@@ -122,6 +121,7 @@ class UsuarioHelper():
             for usuario in usuarios:
                 usuario_serializado = {
                     
+                    "_id": str(usuario.get("_id")) if usuario.get("_id") else None,
                     "correo_electronico": usuario.get("correo_electronico"),
                     "nombre_completo": usuario.get("nombre_completo"),
 
@@ -150,23 +150,60 @@ class UsuarioHelper():
             return { 'status': 500, "data": { 'mensaje': str(ex), 'datos': {} } }
         
         
-    # @classmethod
-    # def acceso(self, datos):
-    #     try:
-    #         db                                  = cnn_mongo()
-    #         usuario                             = db["usuarios"].find_one( { "correo_electronico": datos['correo_electronico'], "activo": True } )
-    #         if not usuario:
-    #             return { 'status': 400, "data": { 'mensaje': 'El correo electronico no existe o el usuario esta dado de baja!', 'datos': {} } }
+    @classmethod
+    def acceso(self, datos):
+        try:
+            db                                  = cnn_mongo()
+            usuario                             = db["usuarios"].find_one( { "correo_electronico": datos['correo_electronico'], "activo": True } )
+            if not usuario:
+                return { 'status': 400, "data": { 'mensaje': 'El correo electronico no existe o el usuario esta dado de baja!', 'datos': {} } }
             
-    #         hash_almacenado                     = bytes( usuario["clave"], encoding='utf-8' )
-    #         rest                                = bcrypt.checkpw( datos['clave'].encode('utf-8'), hash_almacenado )
-    #         if not rest:
-    #             return { 'status': 400, "data": { 'mensaje': 'La clave es incorrecta!', 'datos': {} } }
+            hash_almacenado                     = bytes( usuario["clave"], encoding='utf-8' )
+            rest                                = bcrypt.checkpw( datos['clave'].encode('utf-8'), hash_almacenado )
+            if not rest:
+                return { 'status': 400, "data": { 'mensaje': 'La clave es incorrecta!', 'datos': {} } }
             
-    #         token                               = Seguridad.generar_token( usuario )
-    #         resultado = { 'status': 200, "data": { 'mensaje': 'Acceso correcto!', 'datos': { "token": ( f"Bearer {token}" ), "nombre_completo": usuario['nombre_completo'], "correo_electronico": usuario['correo_electronico']  } } }
-    #         return resultado
+            token                               = Seguridad.generar_token( usuario )
+            resultado = { 'status': 200, "data": { 'mensaje': 'Acceso correcto!', 'datos': { "token": ( f"Bearer {token}" ), "nombre_completo": usuario['nombre_completo'], "correo_electronico": usuario['correo_electronico']  } } }
+            return resultado
         
-    #     except Exception as ex:
-    #         print(ex)
-    #         return str(ex)
+        except Exception as ex:
+            print(ex)
+            return str(ex)
+        
+
+    @classmethod
+    def guardar_foto_perfil(self, id, imagen):
+        try:
+            
+            fecha_actualizacion                 = datetime.now()
+            db                                  = cnn_mongo()
+            ruta, archivoFoto                   = archivoRuta( "\\upload\\profiles\\", imagen['foto_perfil'] )
+            usuario_actualizado = {
+                "foto_perfil": archivoFoto,
+                "fecha_actualizacion": fecha_actualizacion
+            }
+            respDB = db["usuarios"].update_one(
+                { "_id": ObjectId(id) },
+                { "$set": usuario_actualizado }
+            )
+            if respDB.modified_count > 0:
+                imagen['foto_perfil'].save( ruta )
+                resultado = { 'status': 200, "data": { 'mensaje': 'Actualización correcta!', 'datos': {} } }
+            else:
+                resultado = { 'status': 400, "data": { 'mensaje': 'La actualización falló.', 'datos': {} } }
+            
+            return resultado
+        except Exception as ex:
+            print(str(ex))
+            return { 'status': 500, "data": { 'mensaje': str(ex), 'datos': {} } }
+
+
+    @classmethod
+    def mostrar_foto_perfil(self, id):
+        try:
+            db                                  = cnn_mongo()
+            usuario_foto_perfil                 = db["usuarios"].find_one({ "_id": ObjectId(id) })
+            return usuario_foto_perfil['foto_perfil']
+        except Exception as ex:
+            return str(ex)
